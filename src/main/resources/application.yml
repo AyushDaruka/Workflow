@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: Student
+  security:
+    basic:
+      enabled: false
+  datasource:
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+      dialect: org.hibernate.dialect.H2Dialect
+    show-sql: true
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ayushdaruka101@gmail.com
+    password: qgte duxa gspp ftvt
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
