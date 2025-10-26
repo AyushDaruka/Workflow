@@ -34,6 +34,7 @@ public class WorkflowController {
     @GetMapping("/ping/test-notification")
     public ResponseEntity<String> testNotification() {
         emailNotificationService.sendEmail("ayushdaruka@outlook.com", "Test Message", "Test Message");
+        System.out.println("Test notification sent");
         return ResponseEntity.ok("Success");
     }
 
