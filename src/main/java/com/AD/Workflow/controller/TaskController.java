@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Optional;
 
-@RestController("/tasks")
+@RestController("/tasks/")
 public class TaskController {
 
     @Autowired
@@ -23,8 +23,11 @@ public class TaskController {
     @Autowired
     TaskExecution taskExecution;
 
-    @GetMapping("/{taskId}")
-    public ResponseEntity<Task> getTaskDetails(@RequestParam int taskId) {
+    @GetMapping("/tasks/{taskId}")
+    public ResponseEntity<Task> getTaskDetails(@RequestParam(defaultValue = "0") Integer taskId) {
+        if(taskId == null) {
+            return ResponseEntity.badRequest().build();
+        }
         Optional<Task> task = taskRepository.findById(taskId);
         return task.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }

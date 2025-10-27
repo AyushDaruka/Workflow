@@ -5,9 +5,12 @@ import com.AD.Workflow.exception.WorkflowNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Map;
 
 @RestControllerAdvice
 public class WorkflowAppExceptionHandler {
@@ -18,7 +21,7 @@ public class WorkflowAppExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 
-    @ExceptionHandler(Exception.class)
+    @ExceptionHandler(org.springframework.web.server.ResponseStatusException.class)
     public ResponseEntity<ErrorResponseDTO> handleGeneralException(ResponseStatusException ex) {
         HttpStatusCode statusCode = ex.getStatusCode();
         HttpStatus httpStatus = HttpStatus.resolve(statusCode.value());
@@ -34,6 +37,13 @@ public class WorkflowAppExceptionHandler {
         return ResponseEntity.status(httpStatus).body(errorResponse);
 
 //        return new ResponseEntity<>(errorResponse, httpStatus);
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<Map<String, String>> handleMissingParam(MissingServletRequestParameterException ex) {
+        String name = ex.getParameterName();
+        String msg = "Required request parameter '" + name + "' is not present";
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", msg));
     }
 
 }

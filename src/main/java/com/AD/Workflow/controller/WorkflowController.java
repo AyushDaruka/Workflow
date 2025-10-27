@@ -26,7 +26,7 @@ public class WorkflowController {
     @Autowired
     WorkflowService workflowService;
 
-    @GetMapping("/hello")
+    @GetMapping("/ping")
     public ResponseEntity<String> hello() {
 //        emailService.sendEmail("ayushdaruka@outlook.com", "Test Message", "Test Message");
         return ResponseEntity.ok("Hello World!");
