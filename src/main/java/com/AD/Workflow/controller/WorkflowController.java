@@ -3,7 +3,7 @@ package com.AD.Workflow.controller;
 import com.AD.Workflow.domain.enums.WorkflowStatus;
 import com.AD.Workflow.domain.model.Workflow;
 import com.AD.Workflow.repository.WorkflowRepository;
-import com.AD.Workflow.service.EmailService;
+import com.AD.Workflow.service.EmailNotificationService;
 import com.AD.Workflow.service.WorkflowService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,7 +21,7 @@ public class WorkflowController {
     WorkflowRepository workflowRepository;
 
     @Autowired
-    EmailService emailService;
+    EmailNotificationService emailService;
 
     @Autowired
     WorkflowService workflowService;

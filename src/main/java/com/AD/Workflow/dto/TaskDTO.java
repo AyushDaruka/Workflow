@@ -10,7 +10,7 @@ public class TaskDTO {
     Long workflowId;
     Long currentNodeId;
     String status;
-    String configuration;
+    String properties;
     String result;
     LocalTime initiationTime;
     LocalTime completionTime;
@@ -65,12 +65,12 @@ public class TaskDTO {
         this.status = status;
     }
 
-    public String getConfiguration() {
-        return configuration;
+    public String getProperties() {
+        return properties;
     }
 
-    public void setConfiguration(String configuration) {
-        this.configuration = configuration;
+    public void setProperties(String properties) {
+        this.properties = properties;
     }
 
     public String getResult() {
