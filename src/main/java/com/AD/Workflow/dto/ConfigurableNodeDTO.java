@@ -11,7 +11,7 @@ public class ConfigurableNodeDTO {
     private Integer positionX;
     private Integer positionY;
     private Workflow workflow;
-    private String properties;
+    private String configuration;
 
     public int getId() {
         return id;
@@ -69,12 +69,12 @@ public class ConfigurableNodeDTO {
         this.workflow = workflow;
     }
 
-    public String getProperties() {
-        return properties;
+    public String getConfiguration() {
+        return configuration;
     }
 
-    public void setProperties(String properties) {
-        this.properties = properties;
+    public void setConfiguration(String properties) {
+        this.configuration = configuration;
     }
 
 }

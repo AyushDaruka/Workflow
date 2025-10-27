@@ -52,4 +52,12 @@ public class WorkflowDTO {
     public void setWorkflowNodes(List<BaseNode> workflowNodes) {
         this.workflowNodes = workflowNodes;
     }
+
+    public List<Connection> getConnections() {
+        return connections;
+    }
+
+    public void setConnections(List<Connection> connections) {
+        this.connections = connections;
+    }
 }

@@ -4,6 +4,7 @@ import com.AD.Workflow.domain.enums.WorkflowStatus;
 import jakarta.persistence.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @Entity
 public class Workflow {
@@ -54,8 +55,23 @@ public class Workflow {
         return workflowNodes;
     }
 
+    public BaseNode getWorkflowNodeById(Long nodeId) {
+        Optional<BaseNode> node  = workflowNodes.stream()
+                .filter(n -> n.getId().equals(nodeId))
+                .findFirst();
+        return node.orElse(null);
+    }
+
     public void setWorkflowNodes(List<BaseNode> workflowNodes) {
         this.workflowNodes = workflowNodes;
+    }
+
+    public List<Connection> getConnections() {
+        return connections;
+    }
+
+    public void setConnections(List<Connection> connections) {
+        this.connections = connections;
     }
 
 }

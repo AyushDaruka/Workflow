@@ -1,5 +1,6 @@
 package com.AD.Workflow.domain.model;
 
+import com.AD.Workflow.domain.enums.NodeStatus;
 import jakarta.persistence.*;
 
 @Entity
@@ -7,11 +8,11 @@ public class BaseNode {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     private String label;
     private String type;
-    private String status;
+    private NodeStatus status = NodeStatus.CREATED;
     private Integer positionX;
     private Integer positionY;
 
@@ -20,13 +21,13 @@ public class BaseNode {
     private Workflow workflow;
 
     @Lob
-    private String properties;
+    private String configuration;
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -46,11 +47,11 @@ public class BaseNode {
         this.type = type;
     }
 
-    public String getStatus() {
+    public NodeStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(NodeStatus status) {
         this.status = status;
     }
 
@@ -78,12 +79,13 @@ public class BaseNode {
         this.workflow = workflow;
     }
 
-    public String getProperties() {
-        return properties;
+    public String getConfiguration() {
+        return configuration;
     }
 
-    public void setProperties(String properties) {
-        this.properties = properties;
+    public void setConfiguration(String configuration) {
+        this.configuration = configuration;
+        this.status = NodeStatus.ACTIVE;
     }
 
 }

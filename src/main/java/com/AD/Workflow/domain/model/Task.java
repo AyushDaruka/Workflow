@@ -11,7 +11,7 @@ public class Task {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    int id;
+    Long id;
 
     String name;
 
@@ -26,7 +26,7 @@ public class Task {
     TaskStatus status;
 
     @Lob
-    String configuration;
+    String properties;
 
     @Lob
     String result;
@@ -37,11 +37,11 @@ public class Task {
 
     public Task(){}
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -61,12 +61,12 @@ public class Task {
         this.type = type;
     }
 
-    public Workflow getWorkflowId() {
+    public Workflow getWorkflow() {
         return workflow;
     }
 
-    public void setWorkflowId(Workflow workflowId) {
-        this.workflow = workflowId;
+    public void setWorkflowId(Workflow workflow) {
+        this.workflow = workflow;
     }
 
     public Long getCurrentNodeId() {
@@ -85,12 +85,12 @@ public class Task {
         this.status = status;
     }
 
-    public String getConfiguration() {
-        return configuration;
+    public String getProperties() {
+        return properties;
     }
 
-    public void setConfiguration(String configuration) {
-        this.configuration = configuration;
+    public void setProperties(String properties) {
+        this.properties = properties;
     }
 
     public String getResult() {
@@ -116,6 +116,5 @@ public class Task {
     public void setCompletionTime(LocalTime completionTime) {
         this.completionTime = completionTime;
     }
-
 
 }
