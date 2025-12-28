@@ -3,6 +3,7 @@ package com.AD.Workflow.controller;
 import com.AD.Workflow.domain.model.Task;
 import com.AD.Workflow.service.EmailNotificationService;
 import com.AD.Workflow.service.TaskService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Optional;
 
 @RestController("/api/webhooks")
+@Tag(name = "Workflow webhooks", description = "Webhooks management endpoints")
 public class WebhookController {
 
     private EmailNotificationService emailNotificationService;
@@ -31,17 +33,17 @@ public class WebhookController {
         return "Workflow with ID " + workflowId + " has been triggered.";
     }
 
-    @PostMapping("/trigger/task/{taskId}")
-    public String triggerTask(@PathVariable int taskId) {
-        // Logic to trigger the task with the given ID
-        Optional<Task> task = taskService.findTaskById(taskId);
-        return task.map(t -> {
-            taskService.executeTask(t);
-            String msg = "Task with ID " + taskId + " has been triggered.";
-            emailNotificationService.sendEmail("ayushdaruka@outlook.com", "Task Triggered", msg);
-            return msg;
-        }).orElse("Task with ID " + taskId + " not found.");
-    }
+//    @PostMapping("/trigger/task/{taskId}")
+//    public String triggerTask(@PathVariable int taskId) {
+//        // Logic to trigger the task with the given ID
+//        Optional<Task> task = taskService.findTaskById(taskId);
+//        return task.map(t -> {
+//            taskService.executeTask(t);
+//            String msg = "Task with ID " + taskId + " has been triggered.";
+//            emailNotificationService.sendEmail("ayushdaruka@outlook.com", "Task Triggered", msg);
+//            return msg;
+//        }).orElse("Task with ID " + taskId + " not found.");
+//    }
 
     @PostMapping("/notify/status/{entityId}")
     public String notifyStatusChange(@PathVariable int entityId) {

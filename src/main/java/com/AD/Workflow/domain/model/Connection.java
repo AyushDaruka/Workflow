@@ -1,9 +1,7 @@
 package com.AD.Workflow.domain.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 
 @Entity
 public class Connection {
@@ -14,6 +12,14 @@ public class Connection {
     private String target;
     private String label;
     private String condition;
+
+//    @Version
+//    private Long version;
+
+    @ManyToOne
+    @JoinColumn(name = "workflowId")
+    @JsonIgnore
+    private Workflow workflow;
 
     public int getId() {
         return id;

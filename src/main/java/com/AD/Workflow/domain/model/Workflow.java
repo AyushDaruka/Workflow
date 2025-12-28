@@ -1,8 +1,10 @@
 package com.AD.Workflow.domain.model;
 
 import com.AD.Workflow.domain.enums.WorkflowStatus;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,13 +15,32 @@ public class Workflow {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int workflowId;
     private WorkflowStatus status;
+    @Column(unique = true)
     private String name;
-    @OneToMany
+    @OneToMany(
+            mappedBy = "workflow",
+//            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.EAGER)
+    @JsonManagedReference
     private List<BaseNode> workflowNodes;
-    @OneToMany
+    @OneToMany(
+            mappedBy = "workflow",
+//            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.EAGER)
     private List<Connection> connections;
 
-    public Workflow() {}
+    public Workflow(){
+        workflowNodes = new ArrayList<>();
+        connections = new ArrayList<>();
+    }
+    public Workflow(String name) {
+        this.name = name;
+        this.status = WorkflowStatus.CREATED;
+        workflowNodes = new ArrayList<>();
+        connections = new ArrayList<>();
+    }
 
     public Workflow(int workflowId, String name, WorkflowStatus status) {
         this.workflowId = workflowId;

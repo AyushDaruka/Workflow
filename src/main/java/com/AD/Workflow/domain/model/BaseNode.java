@@ -1,6 +1,8 @@
 package com.AD.Workflow.domain.model;
 
 import com.AD.Workflow.domain.enums.NodeStatus;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -16,8 +18,12 @@ public class BaseNode {
     private Integer positionX;
     private Integer positionY;
 
+//    @Version
+//    private Long version;
+
     @ManyToOne
     @JoinColumn(name = "workflowId")
+    @JsonIgnore
     private Workflow workflow;
 
     @Lob

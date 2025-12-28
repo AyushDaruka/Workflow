@@ -2,6 +2,7 @@ package com.AD.Workflow.dto;
 
 import com.AD.Workflow.domain.model.BaseNode;
 import com.AD.Workflow.domain.model.Connection;
+import jakarta.validation.constraints.NotBlank;
 
 import java.util.List;
 
@@ -9,6 +10,7 @@ public class WorkflowDTO {
 
     private int workflowId;
     private String status;
+//    @NotBlank(message = "Workflow name is required.")
     private String name;
     private List<BaseNode> workflowNodes;
     private List<Connection> connections;

@@ -5,14 +5,18 @@ import com.AD.Workflow.domain.model.Task;
 import com.AD.Workflow.domain.model.Workflow;
 import com.AD.Workflow.repository.TaskRepository;
 import com.AD.Workflow.service.TaskService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Optional;
 
 @RestController("/tasks")
+@Tag(name = "Task", description = "Task management endpoints")
 public class TaskController {
 
     @Autowired
@@ -22,6 +26,7 @@ public class TaskController {
     TaskService taskService;
 
     @GetMapping("/tasks/{taskId}")
+    @Operation(summary = "Get task details by ID")
     public ResponseEntity<Task> getTaskDetails(@RequestParam(defaultValue = "0") Integer taskId) {
         if(taskId == null) {
             return ResponseEntity.badRequest().build();
@@ -31,6 +36,7 @@ public class TaskController {
     }
 
     @GetMapping("/tasks-in-workflow/{workflowId}")
+    @Operation(summary = "Get details of all task in a workflow using workflow ID")
     public ResponseEntity<List<Task>> getTasksByWorkflowId(@RequestParam int workflowId) {
         List<Task> tasks = taskRepository.findByWorkflowId(workflowId);
         return Optional.of(tasks)
@@ -40,12 +46,14 @@ public class TaskController {
     }
 
     @PostMapping("/createTask")
+    @Operation(summary = "Create Task")
     public ResponseEntity<String> createTask(@RequestParam Task task) {
         Task t = taskRepository.save(task);
         return ResponseEntity.ok("Task added successfully.");
     }
 
     @PostMapping("/{taskId}/cancel")
+    @Operation(summary = "Cancel Task")
     public ResponseEntity<String> cancelTask(@RequestParam int taskId) {
         Optional<Task> taskOpt = taskRepository.findById(taskId);
         return taskOpt.map(task -> {
@@ -58,6 +66,7 @@ public class TaskController {
     }
 
     @PostMapping("/{taskId}/retry")
+    @Operation(summary = "Retry Task upon failure")
     public ResponseEntity<String> retryTask(@RequestParam int taskId) {
         Optional<Task> taskOpt = taskRepository.findById(taskId);
         return taskOpt.map(task -> {
@@ -73,6 +82,7 @@ public class TaskController {
     }
 
     @PostMapping("/{taskId}/pause")
+    @Operation(summary = "Pause Task by task Id")
     public ResponseEntity<String> pauseTask(@RequestParam int taskId) {
         Optional<Task> taskOpt = taskRepository.findById(taskId);
         return taskOpt.map(task -> {
@@ -89,6 +99,7 @@ public class TaskController {
     }
 
     @PostMapping("/{taskId}/resume")
+    @Operation(summary = "Resume task by task Id")
     public ResponseEntity<String> resumeTask(@RequestParam int taskId) {
         Optional<Task> taskOpt = taskRepository.findById(taskId);
         return taskOpt.map(task -> {
