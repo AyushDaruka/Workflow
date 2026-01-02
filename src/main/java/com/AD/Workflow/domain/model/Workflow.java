@@ -19,14 +19,14 @@ public class Workflow {
     private String name;
     @OneToMany(
             mappedBy = "workflow",
-//            cascade = CascadeType.ALL,
+            cascade = CascadeType.ALL,
             orphanRemoval = true,
             fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<BaseNode> workflowNodes;
     @OneToMany(
             mappedBy = "workflow",
-//            cascade = CascadeType.ALL,
+           cascade = CascadeType.ALL,
             orphanRemoval = true,
             fetch = FetchType.EAGER)
     private List<Connection> connections;
@@ -93,6 +93,27 @@ public class Workflow {
 
     public void setConnections(List<Connection> connections) {
         this.connections = connections;
+    }
+
+    public void addWorkflowNode(BaseNode node) {
+        this.workflowNodes.add(node);
+        node.setWorkflow(this);
+    }
+
+    public void addConnection(Connection connection) {
+
+        this.connections.add(connection);
+        connection.setWorkflow(this);
+    }
+
+    public void removeWorkflowNode(BaseNode node) {
+        this.workflowNodes.remove(node);
+        node.setWorkflow(null);
+    }
+
+    public void removeConnection(Connection connection) {
+        this.connections.remove(connection);
+        connection.setWorkflow(null);
     }
 
 }

@@ -2,7 +2,6 @@ package com.AD.Workflow.dto;
 
 import com.AD.Workflow.domain.model.BaseNode;
 import com.AD.Workflow.domain.model.Connection;
-import jakarta.validation.constraints.NotBlank;
 
 import java.util.List;
 

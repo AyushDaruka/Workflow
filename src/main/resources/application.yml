@@ -1,3 +1,5 @@
+server:
+  port:  8085
 spring:
   application:
     name: Workflow
@@ -36,7 +38,7 @@ spring:
 
   jackson:
     deserialization:
-      fail-on-unknown-properties: true
+      fail-on-unknown-properties: false
     serialization:
       INDENT_OUTPUT: true
 #springdoc:

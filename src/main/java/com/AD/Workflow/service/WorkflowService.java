@@ -7,6 +7,8 @@ import com.AD.Workflow.exception.WorkflowNotFoundException;
 import com.AD.Workflow.repository.WorkflowRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import reactor.core.publisher.Mono;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
@@ -65,11 +67,12 @@ public class WorkflowService {
 
         existingWorkflow.setName(updatedWorkflow.getName());
         existingWorkflow.setStatus(updatedWorkflow.getStatus());
-        existingWorkflow.setWorkflowNodes(updatedWorkflow.getWorkflowNodes());
-        existingWorkflow.setConnections(updatedWorkflow.getConnections());
-//        return workflowRepository.save(existingWorkflow);
-//        return workflowRepository.saveAndFlush(existingWorkflow);
-        return entityManager.merge(existingWorkflow);
+        updatedWorkflow.getConnections().forEach(existingWorkflow::addConnection);
+        updatedWorkflow.getWorkflowNodes().forEach(node -> {
+            existingWorkflow.addWorkflowNode(node);
+        });
+        workflowRepository.save(existingWorkflow);
+        return existingWorkflow;
     }
 
 

@@ -30,6 +30,7 @@ import reactor.core.scheduler.Schedulers;
 
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequestMapping("/")
@@ -106,7 +107,7 @@ public class WorkflowController {
                 .onErrorResume(IllegalArgumentException.class,
                         e -> Mono.just(ResponseEntity.badRequest().build()));
     }
-
+    
     @GetMapping("/workflows")
     @Operation(summary = "Get all workflows")
     @Transactional
