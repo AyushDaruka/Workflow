@@ -61,4 +61,10 @@ public class Connection {
         this.condition = condition;
     }
 
+    public Workflow getWorkflow() {
+        return workflow;
+    }
+    public void setWorkflow(Workflow workflow) {
+        this.workflow = workflow;
+    }
 }
