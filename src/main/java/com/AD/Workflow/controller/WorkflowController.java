@@ -1,6 +1,7 @@
 package com.AD.Workflow.controller;
 
 import com.AD.Workflow.domain.enums.WorkflowStatus;
+import com.AD.Workflow.domain.model.BaseNode;
 import com.AD.Workflow.domain.model.Workflow;
 import com.AD.Workflow.dto.ErrorResponseDTO;
 import com.AD.Workflow.dto.WorkflowDTO;
@@ -24,12 +25,13 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
+//import reactor.core.publisher.Flux;
+//import reactor.core.scheduler.Schedulers;
+//import reactor.core.publisher.Mono;
 
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 @RestController
@@ -58,55 +60,91 @@ public class WorkflowController {
             @ApiResponse(responseCode = "201", description = "Workflow created"),
             @ApiResponse(responseCode = "409", description = "Conflict - resource already exists with same name")
     })
-    public Mono<ResponseEntity<String>> createWorkflow(@Valid @RequestBody WorkflowDTO workflowRequest) {
+    public ResponseEntity<String> createWorkflow(@Valid @RequestBody WorkflowDTO workflowRequest) {
         Workflow workflowReq = new Workflow(workflowRequest.getName());
 
-        return Mono.justOrEmpty(workflowService.addWorkflow(workflowReq))
-                .map(workflow -> ResponseEntity.status(HttpStatus.CREATED).body(
-                        MessageFormat.format(
-                                "Workflow {0} created successfully with reference Id {1}.",
-                                workflow.getName(),
-                                workflow.getWorkflowId()
-                        )
-                ))
-                .onErrorMap(DataIntegrityViolationException.class,
-                        e -> {
-                            return new DataIntegrityViolationException("Workflow with the same name already exists.");
-                        }
-                )
-                .onErrorMap(IllegalArgumentException.class,
-                        e -> {
-                            return new IllegalArgumentException("Invalid workflow data provided.");
-                        }
-                );
-
-
+        Optional<Workflow> createdWorkflowOptional = workflowService.addWorkflow(workflowReq);
+        Workflow createdWorkflow = workflowService.addWorkflow(workflowReq)
+                .orElseThrow(() -> new RuntimeException("Failed to create workflow"));
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+            MessageFormat.format(
+                    "Workflow {0} created successfully with reference Id {1}.",
+                    createdWorkflow.getName(),
+                    createdWorkflow.getWorkflowId()
+            )
+        );
     }
+
+//    public Mono<ResponseEntity<String>> createWorkflow(@Valid @RequestBody WorkflowDTO workflowRequest) {
+//        Workflow workflowReq = new Workflow(workflowRequest.getName());
+//
+//        return Mono.justOrEmpty(workflowService.addWorkflow(workflowReq))
+//                .map(workflow -> ResponseEntity.status(HttpStatus.CREATED).body(
+//                        MessageFormat.format(
+//                                "Workflow {0} created successfully with reference Id {1}.",
+//                                workflow.getName(),
+//                                workflow.getWorkflowId()
+//                        )
+//                ))
+//                .onErrorMap(DataIntegrityViolationException.class,
+//                        e -> {
+//                            return new DataIntegrityViolationException("Workflow with the same name already exists.");
+//                        }
+//                )
+//                .onErrorMap(IllegalArgumentException.class,
+//                        e -> {
+//                            return new IllegalArgumentException("Invalid workflow data provided.");
+//                        }
+//                );
+//
+//
+//    }
 
     @PutMapping(value = "/workflows/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Update a workflow")
-    public Mono<ResponseEntity<Workflow>> updateWorkflow(
+    public ResponseEntity<Workflow> updateWorkflow(
             @PathVariable int id,
-            @RequestBody Mono<WorkflowDTO> workflowDTOMono
+            @Valid @RequestBody WorkflowDTO workflowDTO
     ) {
-        Mono<Workflow> updatedWorkflowMono = workflowDTOMono.map(workflowDTO -> {
-            Workflow updatedWorkflow = new Workflow();
-            updatedWorkflow.setWorkflowId(id);
-            updatedWorkflow.setName(workflowDTO.getName());
-            updatedWorkflow.setStatus(WorkflowStatus.CREATED); // Reset status to CREATED on update
-            updatedWorkflow.setWorkflowNodes(workflowDTO.getWorkflowNodes());
-            updatedWorkflow.setConnections(workflowDTO.getConnections());
-            return updatedWorkflow;
-        });
-        return updatedWorkflowMono
-                .flatMap(updatedWorkflow -> Mono.fromCallable(() -> workflowService.updateWorkflow(id, updatedWorkflow))
-                        .subscribeOn(Schedulers.boundedElastic()))
-                .map(workflow -> ResponseEntity.ok(workflow))
-                .onErrorResume(DataIntegrityViolationException.class,
-                        e -> Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).build()))
-                .onErrorResume(IllegalArgumentException.class,
-                        e -> Mono.just(ResponseEntity.badRequest().build()));
+        Workflow updatedWorkflow = new Workflow();
+        updatedWorkflow.setWorkflowId(id);
+        updatedWorkflow.setName(workflowDTO.getName());
+        updatedWorkflow.setStatus(WorkflowStatus.CREATED); // Reset status to CREATED on update
+        updatedWorkflow.setWorkflowNodes(workflowDTO.getWorkflowNodes());
+        updatedWorkflow.setConnections(workflowDTO.getConnections());
+
+        try {
+            Workflow workflow = workflowService.updateWorkflow(id, updatedWorkflow);
+            return ResponseEntity.ok(workflow);
+        } catch (DataIntegrityViolationException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
+
+//    public Mono<ResponseEntity<Workflow>> updateWorkflow(
+//            @PathVariable int id,
+//            @RequestBody Mono<WorkflowDTO> workflowDTOMono
+//    ) {
+//        Mono<Workflow> updatedWorkflowMono = workflowDTOMono.map(workflowDTO -> {
+//            Workflow updatedWorkflow = new Workflow();
+//            updatedWorkflow.setWorkflowId(id);
+//            updatedWorkflow.setName(workflowDTO.getName());
+//            updatedWorkflow.setStatus(WorkflowStatus.CREATED); // Reset status to CREATED on update
+//            updatedWorkflow.setWorkflowNodes(workflowDTO.getWorkflowNodes());
+//            updatedWorkflow.setConnections(workflowDTO.getConnections());
+//            return updatedWorkflow;
+//        });
+//        return updatedWorkflowMono
+//                .flatMap(updatedWorkflow -> Mono.fromCallable(() -> workflowService.updateWorkflow(id, updatedWorkflow))
+//                        .subscribeOn(Schedulers.boundedElastic()))
+//                .map(workflow -> ResponseEntity.ok(workflow))
+//                .onErrorResume(DataIntegrityViolationException.class,
+//                        e -> Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).build()))
+//                .onErrorResume(IllegalArgumentException.class,
+//                        e -> Mono.just(ResponseEntity.badRequest().build()));
+//    }
     
     @GetMapping("/workflows")
     @Operation(summary = "Get all workflows")
@@ -152,5 +190,26 @@ public class WorkflowController {
     public ResponseEntity<String> deactivateWorkflow(@PathVariable int id) {
         return ResponseEntity.ok(workflowService.deactivateWorkflow(id));
     }
+
+    @PutMapping("/workflows/{id}/addNode")
+    @Operation(summary = "Add a node to a workflow")
+    public ResponseEntity<Workflow> addNodeToWorkflow(
+            @PathVariable int id,
+            @Valid @RequestBody BaseNode nodeDTO
+    ) {
+        Workflow workflow = workflowService.addNodeToWorkflow(id, nodeDTO);
+        return ResponseEntity.ok(workflow);
+    }
+
+    @DeleteMapping("/workflows/{id}/{deleteNodeId}")
+    @Operation(summary = "Delete a node from a workflow")
+    public ResponseEntity<Workflow> deleteNodeFromWorkflow(
+            @PathVariable int id,
+            @PathVariable Long deleteNodeId
+    ) {
+        Workflow workflow = workflowService.deleteNodeFromWorkflow(id, deleteNodeId);
+        return ResponseEntity.ok(workflow);
+    }
+
 
 }

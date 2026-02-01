@@ -26,7 +26,7 @@ public class Workflow {
     private List<BaseNode> workflowNodes;
     @OneToMany(
             mappedBy = "workflow",
-           cascade = CascadeType.ALL,
+            cascade = CascadeType.ALL,
             orphanRemoval = true,
             fetch = FetchType.EAGER)
     private List<Connection> connections;
@@ -84,7 +84,11 @@ public class Workflow {
     }
 
     public void setWorkflowNodes(List<BaseNode> workflowNodes) {
-        this.workflowNodes = workflowNodes;
+        this.workflowNodes = workflowNodes.stream()
+                .map(node -> {
+                    node.setWorkflow(this);
+                    return node;
+                }).toList();
     }
 
     public List<Connection> getConnections() {
@@ -92,7 +96,11 @@ public class Workflow {
     }
 
     public void setConnections(List<Connection> connections) {
-        this.connections = connections;
+        this.connections = connections.stream()
+                    .map(connection -> {
+                                connection.setWorkflow(this);
+                                return connection;
+                    }).toList();
     }
 
     public void addWorkflowNode(BaseNode node) {
@@ -108,12 +116,14 @@ public class Workflow {
 
     public void removeWorkflowNode(BaseNode node) {
         this.workflowNodes.remove(node);
-        node.setWorkflow(null);
+//        -- The base nodes not linked to parent are auto removed.
+//        node.setWorkflow(null);
     }
 
     public void removeConnection(Connection connection) {
         this.connections.remove(connection);
-        connection.setWorkflow(null);
+//        -- The connection links not linked to parent are auto removed.
+//        connection.setWorkflow(null);
     }
 
 }

@@ -22,7 +22,7 @@ public class BaseNode {
 //    private Long version;
 
     @ManyToOne
-    @JoinColumn(name = "workflowId")
+    @JoinColumn(name = "workflow_id")
     @JsonIgnore
     private Workflow workflow;
 

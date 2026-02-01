@@ -2,12 +2,13 @@ package com.AD.Workflow.service;
 
 
 import com.AD.Workflow.domain.enums.WorkflowStatus;
+import com.AD.Workflow.domain.model.BaseNode;
 import com.AD.Workflow.domain.model.Workflow;
 import com.AD.Workflow.exception.WorkflowNotFoundException;
 import com.AD.Workflow.repository.WorkflowRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import reactor.core.publisher.Mono;
+//import reactor.core.publisher.Mono;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
@@ -67,12 +68,9 @@ public class WorkflowService {
 
         existingWorkflow.setName(updatedWorkflow.getName());
         existingWorkflow.setStatus(updatedWorkflow.getStatus());
-        updatedWorkflow.getConnections().forEach(existingWorkflow::addConnection);
-        updatedWorkflow.getWorkflowNodes().forEach(node -> {
-            existingWorkflow.addWorkflowNode(node);
-        });
-        workflowRepository.save(existingWorkflow);
-        return existingWorkflow;
+//        updatedWorkflow.getConnections().forEach(existingWorkflow::addConnection);
+//        updatedWorkflow.getWorkflowNodes().forEach(existingWorkflow::addWorkflowNode);
+        return workflowRepository.save(updatedWorkflow);
     }
 
 
@@ -109,6 +107,34 @@ public class WorkflowService {
         } catch (Exception e) {
             throw new WorkflowNotFoundException("Workflow couldn't be deactivated.");
         }
+    }
+
+    public Workflow addNodeToWorkflow(int workflowId, BaseNode node) {
+        Optional<Workflow> workflow = workflowRepository.findById(workflowId);
+        if (workflow.isPresent()) {
+            Workflow existingWorkflow = workflow.get();
+            existingWorkflow.getWorkflowNodes().add(node);
+            node.setWorkflow(existingWorkflow);
+            workflowRepository.save(existingWorkflow);
+            return existingWorkflow;
+        }
+        throw new WorkflowNotFoundException("No such workflow exists.");
+    }
+
+    public Workflow deleteNodeFromWorkflow(int workflowId, Long nodeId) {
+        Optional<Workflow> workflow = workflowRepository.findById(workflowId);
+        if (workflow.isPresent()) {
+            Workflow existingWorkflow = workflow.get();
+            BaseNode nodeToRemove = existingWorkflow.getWorkflowNodeById(nodeId);
+            if (nodeToRemove != null) {
+                existingWorkflow.getWorkflowNodes().remove(nodeToRemove);
+                workflowRepository.save(existingWorkflow);
+                return existingWorkflow;
+            } else {
+                throw new WorkflowNotFoundException("No such node exists in the workflow.");
+            }
+        }
+        throw new WorkflowNotFoundException("No such workflow exists.");
     }
 
 }
