@@ -18,11 +18,8 @@ public class BaseNode {
     private Integer positionX;
     private Integer positionY;
 
-//    @Version
-//    private Long version;
-
     @ManyToOne
-    @JoinColumn(name = "workflowId")
+    @JoinColumn(name = "workflow_id")
     @JsonIgnore
     private Workflow workflow;
 
@@ -92,6 +89,14 @@ public class BaseNode {
     public void setConfiguration(String configuration) {
         this.configuration = configuration;
         this.status = NodeStatus.ACTIVE;
+    }
+
+    // execute method
+    public void execute() {
+        // Logic to execute the node
+        this.status = NodeStatus.PROCESSING;
+        // Simulate execution logic here
+        // this.status = NodeStatus.COMPLETED;
     }
 
 }

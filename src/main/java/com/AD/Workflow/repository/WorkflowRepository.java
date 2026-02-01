@@ -14,4 +14,5 @@ public interface WorkflowRepository extends JpaRepository<Workflow, Integer> {
     @Query(value = "SELECT * FROM workflow ORDER BY ?1 LIMIT ?2 OFFSET ?3", nativeQuery = true)
     List<Workflow> findPage(String sortBy, int size, long offset);
 
+
 }

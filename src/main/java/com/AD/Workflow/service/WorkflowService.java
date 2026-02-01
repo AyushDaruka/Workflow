@@ -2,12 +2,16 @@ package com.AD.Workflow.service;
 
 
 import com.AD.Workflow.domain.enums.WorkflowStatus;
+import com.AD.Workflow.domain.model.BaseNode;
+import com.AD.Workflow.domain.model.Connection;
 import com.AD.Workflow.domain.model.Workflow;
+import com.AD.Workflow.dto.ConnectionDTO;
 import com.AD.Workflow.exception.WorkflowNotFoundException;
+import com.AD.Workflow.repository.ConnectionRepository;
 import com.AD.Workflow.repository.WorkflowRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import reactor.core.publisher.Mono;
+//import reactor.core.publisher.Mono;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
@@ -24,12 +28,17 @@ public class WorkflowService {
     @PersistenceContext
     private EntityManager entityManager;
 
-    @Autowired
-    private WorkflowRepository workflowRepository;
+    private final WorkflowRepository workflowRepository;
+
+    private final ConnectionRepository connectionRepository;
 
     @Autowired
-    public WorkflowService(WorkflowRepository workflowRepository) {
+    public WorkflowService(
+        WorkflowRepository workflowRepository,
+        ConnectionRepository connectionRepository
+    ) {
         this.workflowRepository = workflowRepository;
+        this.connectionRepository = connectionRepository;
     }
 
     public List<Workflow> getAllWorkflows() {
@@ -67,12 +76,9 @@ public class WorkflowService {
 
         existingWorkflow.setName(updatedWorkflow.getName());
         existingWorkflow.setStatus(updatedWorkflow.getStatus());
-        updatedWorkflow.getConnections().forEach(existingWorkflow::addConnection);
-        updatedWorkflow.getWorkflowNodes().forEach(node -> {
-            existingWorkflow.addWorkflowNode(node);
-        });
-        workflowRepository.save(existingWorkflow);
-        return existingWorkflow;
+//        updatedWorkflow.getConnections().forEach(existingWorkflow::addConnection);
+//        updatedWorkflow.getWorkflowNodes().forEach(existingWorkflow::addWorkflowNode);
+        return workflowRepository.save(updatedWorkflow);
     }
 
 
@@ -111,4 +117,80 @@ public class WorkflowService {
         }
     }
 
+    public Workflow addNodeToWorkflow(int workflowId, BaseNode node) {
+        Optional<Workflow> workflow = workflowRepository.findById(workflowId);
+        if (workflow.isPresent()) {
+            Workflow existingWorkflow = workflow.get();
+            existingWorkflow.getWorkflowNodes().add(node);
+            node.setWorkflow(existingWorkflow);
+            workflowRepository.save(existingWorkflow);
+            return existingWorkflow;
+        }
+        throw new WorkflowNotFoundException("No such workflow exists.");
+    }
+
+    public Workflow deleteNodeFromWorkflow(int workflowId, Long nodeId) {
+        Optional<Workflow> workflow = workflowRepository.findById(workflowId);
+        if (workflow.isPresent()) {
+            Workflow existingWorkflow = workflow.get();
+            BaseNode nodeToRemove = existingWorkflow.getWorkflowNodeById(nodeId);
+            if (nodeToRemove != null) {
+                existingWorkflow.getWorkflowNodes().remove(nodeToRemove);
+                workflowRepository.save(existingWorkflow);
+                return existingWorkflow;
+            } else {
+                throw new WorkflowNotFoundException("No such node exists in the workflow.");
+            }
+        }
+        throw new WorkflowNotFoundException("No such workflow exists.");
+    }
+
+//    public Workflow updateNodeInWorkflow(int workflowId, Long nodeId, BaseNode updatedNode) {
+//        Optional<Workflow> workflow = workflowRepository.findById(workflowId);
+//        if (workflow.isPresent()) {
+//            Workflow existingWorkflow = workflow.get();
+//            BaseNode existingNode = existingWorkflow.getWorkflowNodeById(nodeId);
+//            if (existingNode != null) {
+//                existingNode.setName(updatedNode.getName());
+//                existingNode.setType(updatedNode.getType());
+//                existingNode.setProperties(updatedNode.getProperties());
+//                workflowRepository.save(existingWorkflow);
+//                return existingWorkflow;
+//            } else {
+//                throw new WorkflowNotFoundException("No such node exists in the workflow.");
+//            }
+//        }
+//        throw new WorkflowNotFoundException("No such workflow exists.");
+//    }
+
+    public Workflow addConnectionToWorkflow(int workflowId, ConnectionDTO connection) {
+        Optional<Workflow> workflow = workflowRepository.findById(workflowId);
+        if (workflow.isPresent()) {
+            Workflow existingWorkflow = workflow.get();
+            Connection newConnection = new Connection();
+            newConnection.setSourceNode(connection.getSourceNode());
+            newConnection.setTargetNode(connection.getTargetNode());
+            newConnection.setLabel(connection.getLabel());
+            newConnection.setCondition(connection.getCondition());
+
+            existingWorkflow.addConnection(newConnection);
+            workflowRepository.save(existingWorkflow);
+            return existingWorkflow;
+        }
+        throw new WorkflowNotFoundException("No such workflow exists.");
+    }
+
+    public List<Connection> deleteConnectionFromWorkflow(int workflowId, int connectionId) {
+
+//        Connection connection = connectionRepository.findByIdAndWorkflow_WorkflowId(connectionId)
+//                            .orElseThrow(() -> new WorkflowNotFoundException("No such connection exists."));
+//        if (connection.getWorkflow().getWorkflowId() == workflowId) {
+//            connectionRepository.delete(connection);
+//        }
+        List<Connection> deletedConnections = connectionRepository.deleteByIdAndWorkflowId(connectionId, workflowId);
+        if(deletedConnections.isEmpty()) {
+            throw new WorkflowNotFoundException("No such workflow exists.");
+        }
+        return deletedConnections;
+    }
 }

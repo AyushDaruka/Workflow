@@ -10,7 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Mono;
+//import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +24,22 @@ public class TaskController {
 
     @Autowired
     TaskService taskService;
+
+    @PostMapping("/{taskId}/trigger")
+    @Operation(summary = "Trigger task by task Id")
+    public ResponseEntity<String> triggerTask(@RequestParam int taskId) {
+        Optional<Task> taskOpt = taskRepository.findById(taskId);
+        return taskOpt.map(task -> {
+                    if (!"Paused".equals(task.getStatus())) {
+                        return ResponseEntity.badRequest().body("Only paused tasks can be resumed.");
+                    }
+                    task.setStatus(TaskStatus.PENDING);
+                    taskService.resumeTask(task);
+                    taskRepository.save(task);
+                    return ResponseEntity.ok("Task retry initiated successfully.");
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
 
     @GetMapping("/tasks/{taskId}")
     @Operation(summary = "Get task details by ID")

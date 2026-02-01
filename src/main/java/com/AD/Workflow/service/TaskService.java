@@ -1,25 +1,21 @@
 package com.AD.Workflow.service;
 
-import ch.qos.logback.core.pattern.parser.OptionTokenizer;
 import com.AD.Workflow.domain.enums.TaskStatus;
 import com.AD.Workflow.domain.model.Task;
 import com.AD.Workflow.domain.model.Workflow;
-import com.AD.Workflow.executor.NodeExecutor;
+import com.AD.Workflow.execution.engine.NodeEngine;
 import com.AD.Workflow.repository.TaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
+//import reactor.core.publisher.Mono;
 
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
 public class TaskService {
 
     @Autowired
-    private NodeExecutor nodeExecutor;
+    private NodeEngine nodeEngine;
 
     @Autowired
     private JsonMapper mapper;
@@ -36,7 +32,7 @@ public class TaskService {
             case IN_PROGRESS:
             case PAUSED:
                 Workflow wf = task.getWorkflow();
-                nodeExecutor.endNodeTask(
+                nodeEngine.endNodeTask(
                         wf,
                         wf.getWorkflowNodeById(task.getCurrentNodeId()),
                         mapper.convertJsonStringToObject(task.getProperties())
@@ -47,32 +43,32 @@ public class TaskService {
     }
 
     public void executeTask(Task task) {
-        switch(task.getStatus()) {
-            case PENDING:
-            case PAUSED:
-                Workflow wf = task.getWorkflow();
-                Mono<Map<String, Object>> mono = nodeExecutor.executeNodeTask(
-                        wf,
-                        wf.getWorkflowNodeById(task.getCurrentNodeId()),
-                        mapper.convertJsonStringToObject(task.getProperties())
-                );
-
-                mono.subscribe(
-                        value -> {
-                            emailNotificationService.sendEmail(
-                                    "ayushdaruka@outlook.com",
-                                    "Execution Update",
-                                    "The following response was received: \n" + mapper.convertObjectToJson(value)
-                            );
-                            // basis the value status, get the next node from the
-                            task.setStatus(TaskStatus.COMPLETED);
-                        },
-                        error -> {
-                            task.setStatus(TaskStatus.FAILED);
-                        }
-                );
-                task.setStatus(TaskStatus.IN_PROGRESS);
-        }
+//        switch(task.getStatus()) {
+//            case PENDING:
+//            case PAUSED:
+//                Workflow wf = task.getWorkflow();
+//                Mono<Map<String, Object>> mono = nodeExecutor.executeNodeTask(
+//                        wf,
+//                        wf.getWorkflowNodeById(task.getCurrentNodeId()),
+//                        mapper.convertJsonStringToObject(task.getProperties())
+//                );
+//
+//                mono.subscribe(
+//                        value -> {
+//                            emailNotificationService.sendEmail(
+//                                    "ayushdaruka@outlook.com",
+//                                    "Execution Update",
+//                                    "The following response was received: \n" + mapper.convertObjectToJson(value)
+//                            );
+//                            // basis the value status, get the next node from the
+//                            task.setStatus(TaskStatus.COMPLETED);
+//                        },
+//                        error -> {
+//                            task.setStatus(TaskStatus.FAILED);
+//                        }
+//                );
+//                task.setStatus(TaskStatus.IN_PROGRESS);
+//        }
         return;
     }
 
@@ -81,7 +77,7 @@ public class TaskService {
             case PENDING:
             case IN_PROGRESS:
                 Workflow wf = task.getWorkflow();
-                nodeExecutor.pauseNodeTask(
+                nodeEngine.pauseNodeTask(
                         wf,
                         wf.getWorkflowNodeById(task.getCurrentNodeId()),
                         mapper.convertJsonStringToObject(task.getProperties())
@@ -92,16 +88,16 @@ public class TaskService {
     }
 
     public void resumeTask(Task task) {
-        switch(task.getStatus()) {
-            case PAUSED:
-                Workflow wf = task.getWorkflow();
-                nodeExecutor.executeNodeTask(
-                        wf,
-                        wf.getWorkflowNodeById(task.getCurrentNodeId()),
-                        mapper.convertJsonStringToObject(task.getProperties())
-                );
-                task.setStatus(TaskStatus.IN_PROGRESS);
-        }
+//        switch(task.getStatus()) {
+//            case PAUSED:
+//                Workflow wf = task.getWorkflow();
+//                nodeExecutor.executeNodeTask(
+//                        wf,
+//                        wf.getWorkflowNodeById(task.getCurrentNodeId()),
+//                        mapper.convertJsonStringToObject(task.getProperties())
+//                );
+//                task.setStatus(TaskStatus.IN_PROGRESS);
+//        }
         return;
     }
 
@@ -111,7 +107,7 @@ public class TaskService {
             case IN_PROGRESS:
             case PAUSED:
                 Workflow wf = task.getWorkflow();
-                nodeExecutor.endNodeTask(
+                nodeEngine.endNodeTask(
                         wf,
                         wf.getWorkflowNodeById(task.getCurrentNodeId()),
                         mapper.convertJsonStringToObject(task.getProperties())
@@ -122,17 +118,17 @@ public class TaskService {
     }
 
     public void retryTask(Task task) {
-        switch (task.getStatus()) {
-            case FAILED:
-            case CANCELLED:
-                Workflow wf = task.getWorkflow();
-                nodeExecutor.executeNodeTask(
-                        wf,
-                        wf.getWorkflowNodeById(task.getCurrentNodeId()),
-                        mapper.convertJsonStringToObject(task.getProperties())
-                );
-                task.setStatus(TaskStatus.PENDING);
-        }
+//        switch (task.getStatus()) {
+//            case FAILED:
+//            case CANCELLED:
+//                Workflow wf = task.getWorkflow();
+//                nodeExecutor.executeNodeTask(
+//                        wf,
+//                        wf.getWorkflowNodeById(task.getCurrentNodeId()),
+//                        mapper.convertJsonStringToObject(task.getProperties())
+//                );
+//                task.setStatus(TaskStatus.PENDING);
+//        }
         return;
     }
 
