@@ -5,4 +5,12 @@ public enum NodeStatus {
     ACTIVE,
     PROCESSING,
     SUSPENDED,
+    PENDING, // waiting to execute
+    RETRYING,
+    SKIPPED,
+    COMPLETED,
+    FAILED,
+    CANCELLED,
+    TERMINATED,
+    PAUSED
 }

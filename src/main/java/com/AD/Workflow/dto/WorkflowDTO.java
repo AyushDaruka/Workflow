@@ -9,6 +9,7 @@ public class WorkflowDTO {
 
     private int workflowId;
     private String status;
+//    @NotBlank(message = "Workflow name is required.")
     private String name;
     private List<BaseNode> workflowNodes;
     private List<Connection> connections;

@@ -1,6 +1,8 @@
 package com.AD.Workflow.domain.model;
 
 import com.AD.Workflow.domain.enums.NodeStatus;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -17,7 +19,8 @@ public class BaseNode {
     private Integer positionY;
 
     @ManyToOne
-    @JoinColumn(name = "workflowId")
+    @JoinColumn(name = "workflow_id")
+    @JsonIgnore
     private Workflow workflow;
 
     @Lob
@@ -86,6 +89,14 @@ public class BaseNode {
     public void setConfiguration(String configuration) {
         this.configuration = configuration;
         this.status = NodeStatus.ACTIVE;
+    }
+
+    // execute method
+    public void execute() {
+        // Logic to execute the node
+        this.status = NodeStatus.PROCESSING;
+        // Simulate execution logic here
+        // this.status = NodeStatus.COMPLETED;
     }
 
 }
